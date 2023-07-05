@@ -13,7 +13,7 @@
         - SECURITY : `Spring Security`
         - External Library : `com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.5.7`
 - IDE : IntelliJ
-- DB : H2 `jdbc:h2:tcp://localhost/~/querydsl`
+- DB : H2 `jdbc:h2:tcp://localhost/~/shop`
 
 ## 프로젝트 일정
 - 7/5 전체적인 엔티티 설계, Item Entity 개발
