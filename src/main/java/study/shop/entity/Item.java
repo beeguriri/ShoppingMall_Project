@@ -1,16 +1,14 @@
 package study.shop.entity;
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import study.shop.entity.constant.ItemSellStatus;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @ToString(of = {"itemName", "price", "stock"})
 public class Item extends BaseTimeEntity{
 
@@ -19,21 +17,35 @@ public class Item extends BaseTimeEntity{
     @Column(name = "item_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false) @Setter
     private String itemName;
 
-    @Column(nullable = false)
+    @Column(nullable = false) @Setter
     private int price;
 
-    @Column(nullable = false)
+    @Column(nullable = false) @Setter
     private int stock;
 
     @Lob //Large Object(var255 이상의 데이터 저장)
-    @Column(nullable = false)
+    @Column(nullable = false) @Setter
     private String itemDetail;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.STRING) @Setter
     private ItemSellStatus itemSellStatus;
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj)
+            return true;
+        if (!(obj instanceof Item that))
+            return false;
+        return id!=null && id.equals(that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 
     //==비지니스 로직 : 도메인 주도 설계==//
     //재고증가
