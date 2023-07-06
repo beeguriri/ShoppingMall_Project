@@ -1,14 +1,15 @@
 package study.shop.dto;
 
 import lombok.Data;
+import org.springframework.data.annotation.ReadOnlyProperty;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 @Data
-public class MemberFormDto {
+public class MemberUpdateFormDto {
 
-    @NotBlank(message = "아이디는 필수 입력 값입니다.")
+    @ReadOnlyProperty
     private String userid;
 
     @NotBlank(message = "이름은 필수 입력 값입니다.")
