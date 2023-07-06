@@ -9,9 +9,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import study.shop.dto.MemberFormDto;
+import study.shop.dto.MemberUpdateFormDto;
+import study.shop.entity.Member;
+import study.shop.repository.MemberRepository;
 import study.shop.service.MemberService;
 
 import javax.validation.Valid;
+import java.security.Principal;
 
 @RequestMapping("/members")
 @Controller
@@ -32,7 +36,7 @@ public class MemberController {
 
         // 입력값에 오류 있으면 bindingResult 에 담아서 form 으로 이동
         if(bindingResult.hasErrors()) {
-            log.info("field={}, error={}",bindingResult.getFieldError().getField(), bindingResult.getFieldError());
+            log.info("error={}", bindingResult.getFieldError());
             return "members/memberForm";
         }
 
@@ -57,5 +61,28 @@ public class MemberController {
     public String loginError(Model model){
         model.addAttribute("loginError", "아이디 또는 비밀번호를 확인해주세요.");
         return "members/memberLoginForm";
+    }
+
+    @GetMapping("/update")
+    public String update(Principal principal, Model model) {
+        log.info("로그인 된 사용자 id = {}", principal.getName());
+        Member updateMember = memberService.getMember(principal.getName());
+        model.addAttribute("updateMember", updateMember);
+
+        return "members/memberUpdateForm";
+    }
+
+    @PostMapping("/update")
+    public String update(@Valid MemberUpdateFormDto memberUpdateFormDto, BindingResult bindingResult) {
+
+        // 입력값에 오류 있으면 bindingResult 에 담아서 form 으로 이동
+        if(bindingResult.hasErrors()) {
+            log.info("error={}", bindingResult.getFieldError());
+            return "members/memberUpdateForm";
+        }
+
+        memberService.updateMember(memberUpdateFormDto);
+
+        return "redirect:/";
     }
 }

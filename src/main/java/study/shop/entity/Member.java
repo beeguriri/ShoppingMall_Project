@@ -22,16 +22,16 @@ public class Member extends BaseTimeEntity{
     @Column(unique = true, nullable = false)
     private String userid;
 
-    @Column(nullable = false)
+    @Column(nullable = false) @Setter
     private String nickName;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false) @Setter
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false) @Setter
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = false) @Setter
     private String address;
 
     @Enumerated(EnumType.STRING) @Setter

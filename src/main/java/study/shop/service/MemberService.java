@@ -9,8 +9,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import study.shop.dto.MemberFormDto;
+import study.shop.dto.MemberUpdateFormDto;
 import study.shop.entity.Member;
 import study.shop.repository.MemberRepository;
+
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -19,6 +22,12 @@ public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+
+    public Member getMember(String userid) {
+        return memberRepository.findByUserid(userid).orElseThrow(
+                () -> new UsernameNotFoundException(userid)
+        );
+    }
 
     public void createMember(MemberFormDto memberFormDto){
 
@@ -31,6 +40,20 @@ public class MemberService implements UserDetailsService {
         //신규가입 진행
         Member newMember = Member.createMember(memberFormDto, passwordEncoder);
         memberRepository.save(newMember);
+    }
+
+    public void updateMember(MemberUpdateFormDto memberUpdateFormDto) {
+
+        Member updateMember = memberRepository.findByUserid(memberUpdateFormDto.getUserid())
+                .orElseThrow(
+                        () -> new UsernameNotFoundException(memberUpdateFormDto.getUserid())
+                );
+
+        updateMember.setNickName(memberUpdateFormDto.getNickName());
+        updateMember.setPassword(passwordEncoder.encode(memberUpdateFormDto.getPassword()));
+        updateMember.setEmail(memberUpdateFormDto.getEmail());
+        updateMember.setAddress(memberUpdateFormDto.getAddress());
+
     }
 
     @Override
