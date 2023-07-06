@@ -82,13 +82,13 @@ public class MemberController {
             return "members/memberUpdateForm";
         }
 //
-//        try {
+        try {
             memberService.updateMember(memberUpdateFormDto);
-//        } catch (IllegalStateException e) {
-//            log.info("error={}", e.getMessage());
-//            model.addAttribute("errorMessage", e.getMessage());
-//            return "members/memberUpdateForm";
-//        }
+        } catch (IllegalStateException e) {
+            log.info("error={}", e.getMessage());
+            model.addAttribute("errorMessage", e.getMessage());
+            return "members/memberUpdateForm";
+        }
         return "redirect:/";
     }
 }

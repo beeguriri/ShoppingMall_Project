@@ -12,6 +12,18 @@
     </style>
 </th:block>
 
+<!-- 사용자 스크립트 -->
+<th:block layout:fragment="script">
+    <script th:inline="javascript">
+        $(document).ready(function (){
+            const errorMessage = [[${errorMessage}]];
+            if(errorMessage) {
+                alert(errorMessage);
+            }
+        });
+    </script>
+</th:block>
+
 <!-- 사용자 컨텐츠 -->
 <div layout:fragment="content">
     <form role="form" action="/members/update" th:object="${updateMember}" method="post">

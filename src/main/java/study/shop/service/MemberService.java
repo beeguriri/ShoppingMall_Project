@@ -52,10 +52,10 @@ public class MemberService implements UserDetailsService {
                         () -> new UsernameNotFoundException(memberUpdateFormDto.getUserid())
                 );
 
-//        memberRepository.findByEmail(memberUpdateFormDto.getEmail())
-//                .ifPresent(member -> {
-//                    throw new IllegalStateException("이미 가입된 이메일 입니다.");
-//                });
+        memberRepository.findByEmail(memberUpdateFormDto.getEmail())
+                .ifPresent(member -> {
+                    throw new IllegalStateException("이미 가입된 이메일 입니다.");
+                });
 
         updateMember.setNickName(memberUpdateFormDto.getNickName());
         updateMember.setPassword(passwordEncoder.encode(memberUpdateFormDto.getPassword()));
