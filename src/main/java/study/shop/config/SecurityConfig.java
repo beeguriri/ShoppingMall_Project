@@ -28,6 +28,15 @@ public class SecurityConfig {
                 )
                 .logoutSuccessUrl("/");
 
+        http.authorizeRequests()
+                .mvcMatchers("/css/**", "/js/**", "/img/**",
+                        "/", "/members/**").permitAll()
+                .mvcMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated();
+
+        http.exceptionHandling()
+                .authenticationEntryPoint(new CustomAuthenticationEntryPoint());
+
         return http.build();
     }
     @Bean
