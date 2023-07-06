@@ -77,10 +77,10 @@ public class MemberController {
 
 
 //        // 입력값에 오류 있으면 bindingResult 에 담아서 form 으로 이동
-//        if(bindingResult.hasErrors()) {
-//            log.info("error={}", bindingResult.getFieldError());
-//            return "members/memberUpdateForm";
-//        }
+        if(bindingResult.hasErrors()) {
+            log.info("error={}", bindingResult.getFieldError());
+            return "members/memberUpdateForm";
+        }
 //
 //        try {
             memberService.updateMember(memberUpdateFormDto);
