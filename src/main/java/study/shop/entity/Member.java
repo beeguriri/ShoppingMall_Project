@@ -22,16 +22,16 @@ public class Member extends BaseTimeEntity{
     @Column(unique = true, nullable = false)
     private String userid;
 
-    @Column(nullable = false) @Setter
+    @Column(nullable = false)
     private String nickName;
 
-    @Column(unique = true, nullable = false) @Setter
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false) @Setter
+    @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false) @Setter
+    @Column(nullable = false)
     private String address;
 
     @Enumerated(EnumType.STRING) @Setter
@@ -46,8 +46,8 @@ public class Member extends BaseTimeEntity{
         this.role = role;
     }
 
-    public static Member createMember(MemberFormDto memberFormDto, PasswordEncoder passwordEncoder) {
+    public Member createMember(MemberFormDto memberFormDto, PasswordEncoder passwordEncoder) {
         return new Member(memberFormDto.getUserid(), memberFormDto.getNickName(), memberFormDto.getEmail(),
-                passwordEncoder.encode(memberFormDto.getPassword()), memberFormDto.getAddress(), Role.ADMIN);
+                passwordEncoder.encode(memberFormDto.getPassword()), memberFormDto.getAddress(), Role.USER);
     }
 }
