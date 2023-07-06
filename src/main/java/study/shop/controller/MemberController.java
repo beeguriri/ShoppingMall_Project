@@ -36,7 +36,14 @@ public class MemberController {
             return "members/memberForm";
         }
 
-        memberService.createMember(memberFormDto);
+        // 중복 회원가입 검증
+        try {
+            memberService.createMember(memberFormDto);
+        } catch (IllegalStateException e) {
+            log.info("error={}", e.getMessage());
+            model.addAttribute("errorMessage", e.getMessage());
+            return "members/memberForm";
+        }
 
         return "redirect:/";
     }
