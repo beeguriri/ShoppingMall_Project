@@ -84,9 +84,9 @@ public class MemberController {
 //
         try {
             memberService.updateMember(memberUpdateFormDto);
-        } catch (IllegalStateException e) {
+        } catch (Exception e) {
             log.info("error={}", e.getMessage());
-            model.addAttribute("errorMessage", e.getMessage());
+            model.addAttribute("errorMessage", "이미 가입된 이메일 입니다.");
             return "members/memberUpdateForm";
         }
         return "redirect:/";
