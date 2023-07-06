@@ -13,8 +13,6 @@ import study.shop.dto.MemberUpdateFormDto;
 import study.shop.entity.Member;
 import study.shop.repository.MemberRepository;
 
-import java.util.Optional;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -34,7 +32,12 @@ public class MemberService implements UserDetailsService {
         //이미 가입된 회원 검증
         memberRepository.findByUserid(memberFormDto.getUserid())
                 .ifPresent(member -> {
-                    throw new IllegalStateException("이미 가입된 회원입니다.");
+                    throw new IllegalStateException("이미 가입된 아이디 입니다.");
+                });
+
+        memberRepository.findByEmail(memberFormDto.getEmail())
+                .ifPresent(member -> {
+                    throw new IllegalStateException("이미 가입된 이메일 입니다.");
                 });
 
         //신규가입 진행
@@ -48,6 +51,11 @@ public class MemberService implements UserDetailsService {
                 .orElseThrow(
                         () -> new UsernameNotFoundException(memberUpdateFormDto.getUserid())
                 );
+
+//        memberRepository.findByEmail(memberUpdateFormDto.getEmail())
+//                .ifPresent(member -> {
+//                    throw new IllegalStateException("이미 가입된 이메일 입니다.");
+//                });
 
         updateMember.setNickName(memberUpdateFormDto.getNickName());
         updateMember.setPassword(passwordEncoder.encode(memberUpdateFormDto.getPassword()));
