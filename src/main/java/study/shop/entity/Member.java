@@ -48,6 +48,6 @@ public class Member extends BaseTimeEntity{
 
     public static Member createMember(MemberFormDto memberFormDto, PasswordEncoder passwordEncoder) {
         return new Member(memberFormDto.getUserid(), memberFormDto.getNickName(), memberFormDto.getEmail(),
-                passwordEncoder.encode(memberFormDto.getPassword()), memberFormDto.getAddress(), Role.USER);
+                passwordEncoder.encode(memberFormDto.getPassword()), memberFormDto.getAddress(), Role.ADMIN);
     }
 }
