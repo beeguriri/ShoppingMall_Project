@@ -12,9 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name="orders")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Orders extends BaseTimeEntity{
+public class Order extends BaseTimeEntity{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
@@ -24,7 +25,7 @@ public class Orders extends BaseTimeEntity{
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "orders", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderItem> orderItems = new ArrayList<>();
 
     @Enumerated(EnumType.STRING) @Setter
@@ -41,13 +42,13 @@ public class Orders extends BaseTimeEntity{
 
     public void addOrderItem(OrderItem orderItem) {
         orderItems.add(orderItem);
-        orderItem.setOrders(this);
+        orderItem.setOrder(this);
     }
 
     //생성메서드
-    public static Orders createOrder(Member member, OrderItem... orderItems){
+    public static Order createOrder(Member member, OrderItem... orderItems){
 
-        Orders order = new Orders();
+        Order order = new Order();
 
         order.setMember(member);
         for(OrderItem item : orderItems)
