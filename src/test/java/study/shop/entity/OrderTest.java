@@ -19,7 +19,6 @@ import static study.shop.entity.Order.createOrder;
 import static study.shop.entity.OrderItem.createOrderItem;
 
 @SpringBootTest
-@Transactional
 class OrderTest {
 
     @Autowired

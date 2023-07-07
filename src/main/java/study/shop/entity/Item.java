@@ -10,7 +10,7 @@ import java.util.Objects;
 @Getter
 @NoArgsConstructor
 @ToString(of = {"itemName", "price", "stock"})
-public class Item extends BaseTimeEntity{
+public class Item extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -26,7 +26,7 @@ public abstract class BaseTimeEntity {
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     @CreatedDate
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt; //생성일시
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
