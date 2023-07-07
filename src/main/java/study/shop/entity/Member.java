@@ -9,11 +9,13 @@ import study.shop.dto.MemberFormDto;
 import study.shop.entity.constant.Role;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member extends BaseTimeEntity{
+public class Member extends BaseEntity{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
@@ -36,6 +38,9 @@ public class Member extends BaseTimeEntity{
 
     @Enumerated(EnumType.STRING) @Setter
     private Role role;
+
+    @OneToMany(mappedBy = "member")
+    private List<Order> orders = new ArrayList<>();
 
     public Member(String userid, String nickName, String email, String password, String address, Role role) {
         this.userid = userid;
