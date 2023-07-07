@@ -9,6 +9,8 @@ import study.shop.dto.MemberFormDto;
 import study.shop.entity.constant.Role;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -36,6 +38,9 @@ public class Member extends BaseTimeEntity{
 
     @Enumerated(EnumType.STRING) @Setter
     private Role role;
+
+    @OneToMany(mappedBy = "member")
+    private List<Orders> orders = new ArrayList<>();
 
     public Member(String userid, String nickName, String email, String password, String address, Role role) {
         this.userid = userid;
