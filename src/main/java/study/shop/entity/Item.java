@@ -8,7 +8,7 @@ import java.util.Objects;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString(of = {"itemName", "price", "stock"})
 public class Item extends BaseEntity{
 
@@ -17,21 +17,30 @@ public class Item extends BaseEntity{
     @Column(name = "item_id")
     private Long id;
 
-    @Column(nullable = false) @Setter
+    @Column(nullable = false)
     private String itemName;
 
-    @Column(nullable = false) @Setter
+    @Column(nullable = false)
     private int price;
 
-    @Column(nullable = false) @Setter
+    @Column(nullable = false)
     private int stock;
 
     @Lob //Large Object(var255 이상의 데이터 저장)
-    @Column(nullable = false) @Setter
+    @Column(nullable = false)
     private String itemDetail;
 
-    @Enumerated(EnumType.STRING) @Setter
+    @Enumerated(EnumType.STRING)
     private ItemSellStatus itemSellStatus;
+
+    //==아이템 생성==//
+    public Item(String itemName, int price, int stock, String itemDetail, ItemSellStatus itemSellStatus) {
+        this.itemName = itemName;
+        this.price = price;
+        this.stock = stock;
+        this.itemDetail = itemDetail;
+        this.itemSellStatus = itemSellStatus;
+    }
 
     @Override
     public boolean equals(Object obj) {

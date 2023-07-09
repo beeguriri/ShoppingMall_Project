@@ -78,13 +78,7 @@ class ItemRepositoryTest {
     }
 
     private static Item createItem() {
-        Item item = new Item();
-        item.setItemName("ItemA");
-        item.setPrice(1000);
-        item.setStock(10);
-        item.setItemDetail("상세설명");
-        item.setItemSellStatus(ItemSellStatus.SELL);
-        return item;
+        return new Item("ItemA", 1000, 10, "상세설명", ItemSellStatus.SELL);
     }
 
 

@@ -101,9 +101,9 @@ class OrderTest {
 
     public MemberFormDto createForm() {
         MemberFormDto memberFormDto = new MemberFormDto();
-        memberFormDto.setUserid("tester1");
+        memberFormDto.setUserid("tester11");
         memberFormDto.setNickName("테스터");
-        memberFormDto.setEmail("aaa@bbb.com");
+        memberFormDto.setEmail("aaa@11bbb.com");
         memberFormDto.setPassword("1234");
         memberFormDto.setAddress("부산시");
 
@@ -111,12 +111,6 @@ class OrderTest {
     }
 
     private static Item createItem(String itemName, int price, int stock) {
-        Item item = new Item();
-        item.setItemName(itemName);
-        item.setPrice(price);
-        item.setStock(stock);
-        item.setItemDetail("상세설명");
-        item.setItemSellStatus(ItemSellStatus.SELL);
-        return item;
+        return new Item(itemName, price, stock, "상세설명", ItemSellStatus.SELL);
     }
 }
