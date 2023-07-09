@@ -26,8 +26,8 @@ public class ItemService {
         itemRepository.save(item);
 
         for(int i=0; i<multipartFileList.size(); i++) {
-            ItemImg itemImg = new ItemImg();
-            itemImg.setItem(item);
+            ItemImg itemImg = new ItemImg(item);
+
             if(i==0)
                 itemImg.setRepImgYn("Y");
             else
