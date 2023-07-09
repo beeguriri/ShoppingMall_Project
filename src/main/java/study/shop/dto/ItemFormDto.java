@@ -1,8 +1,8 @@
 package study.shop.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import study.shop.entity.Item;
 import study.shop.entity.ItemImg;
 import study.shop.entity.constant.ItemSellStatus;
 
@@ -36,5 +36,26 @@ public class ItemFormDto {
 
     // 상품의 이미지 아이디 저장
     private List<Long> itemImgIds = new ArrayList<>();
+
+    //itemFormDto와 item 간 데이터 복사
+    public Item createItem() {
+
+        //여기서 사용하기 위해 item accessLevel = public 설정..
+        Item item = new Item();
+        item.setItemName(itemName);
+        item.setPrice(price);
+        item.setStock(stock);
+        item.setItemDetail(itemDetail);
+        item.setItemSellStatus(itemSellStatus);
+
+        return item;
+    }
+
+    public ItemFormDto of(Item item){
+        ItemFormDto itemFormDto = new ItemFormDto();
+        this.id = item.getId();
+
+        return itemFormDto;
+    }
 
 }

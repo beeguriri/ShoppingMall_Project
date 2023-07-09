@@ -8,7 +8,7 @@ import java.util.Objects;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 @ToString(of = {"itemName", "price", "stock"})
 public class Item extends BaseEntity{
 
