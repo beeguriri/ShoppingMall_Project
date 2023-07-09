@@ -23,11 +23,11 @@ public class ItemFormDto {
     @NotNull(message = "가격은 필수 입력값입니다.")
     private int price;
 
-    @NotBlank(message = "상품설명은 필수 입력 값입니다.")
-    private String itemDetail;
-
     @NotNull(message = "재고는 필수 입력 값입니다.")
     private int stock;
+
+    @NotBlank(message = "상품설명은 필수 입력 값입니다.")
+    private String itemDetail;
 
     private ItemSellStatus itemSellStatus;
 
@@ -37,25 +37,31 @@ public class ItemFormDto {
     // 상품의 이미지 아이디 저장
     private List<Long> itemImgIds = new ArrayList<>();
 
-    //itemFormDto와 item 간 데이터 복사
+    // 생성자
+    public ItemFormDto(Long id, String itemName, int price, int stock,
+                       String itemDetail, ItemSellStatus itemSellStatus) {
+        this.id = id;
+        this.itemName = itemName;
+        this.price = price;
+        this.itemDetail = itemDetail;
+        this.stock = stock;
+        this.itemSellStatus = itemSellStatus;
+    }
+
+    //itemFormDto 와 item 간 데이터 복사
     public Item createItem() {
-
-        //여기서 사용하기 위해 item accessLevel = public 설정..
-        Item item = new Item();
-        item.setItemName(itemName);
-        item.setPrice(price);
-        item.setStock(stock);
-        item.setItemDetail(itemDetail);
-        item.setItemSellStatus(itemSellStatus);
-
-        return item;
+        return new Item(itemName, price, stock, itemDetail, itemSellStatus);
     }
 
     public ItemFormDto of(Item item){
-        ItemFormDto itemFormDto = new ItemFormDto();
-        this.id = item.getId();
-
-        return itemFormDto;
+        return new ItemFormDto(
+                item.getId(),
+                item.getItemName(),
+                item.getPrice(),
+                item.getStock(),
+                item.getItemDetail(),
+                item.getItemSellStatus()
+        );
     }
 
 }
