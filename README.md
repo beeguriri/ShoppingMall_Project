@@ -98,7 +98,7 @@ erDiagram
     created_by varchar(255)
     updated_by varchar(255)
   }
-  Member ||--|{ Cart : l
+  Member ||--|| Cart : l
   Cart {
     cart_id bigint PK ""
     member_id bigint FK ""
