@@ -21,12 +21,103 @@
 - 7/5 전체적인 엔티티 설계, Item Entity, Member Entity 개발, Thymeleaf layout 잡기
 - 7/6 시큐리티를 이용한 회원가입 및 로그인, 회원정보수정(추가기능) 
 - 7/7 `Cart`, `Order` Entity 설계, 연관관계 매핑, Auditing 수정
-- 7/8 상품 등록, 조회, 수정
+- 7/9 상품 등록
+- 7/10 상품 수정
+- 7/11 상품 목록 조회 및 상품 개별 조회
 - 나중에 보완 할 것
   - [ ] csrf 공부하기
   - [ ] url을 주소창에 입력해서 강제접근 시(principal==null) login 화면으로 redirect 하기
+  - [ ] 시큐리티가 적용되어 있어서 테스트 코드 짜는게 너무 힘들다...
 
 ## 엔티티 설계
+```mermaid
+erDiagram
+    Member ||--o{ Orders : l
+    Member {
+      member_id bigint PK ""
+      userid varchar(255) "not null, unique"
+      password varchar(255) "not null"
+      email varchar(255) "not null, unique"
+      nick_name varchar(255) "not null"
+      address varchar(255) "not null"
+      role varchar(255) "default 'USER'"
+      created_at timestamp "not null"
+      updated_at timestamp "not null"
+      created_by varchar(255)
+      updated_by varchar(255)
+    }
+    Orders {
+      order_id bigint PK ""
+      member_id bigint FK ""
+      order_date timestamp
+      order_status varchar(255) "ORDER/CANCEL"
+      created_at timestamp "not null"
+      updated_at timestamp "not null"
+      created_by varchar(255)
+      updated_by varchar(255)
+    }
+    Orders ||--o{ OrderItem : l
+    OrderItem {
+    order_item_id bigint PK ""
+    order_id bigint FK ""
+    item_id bigint FK
+    count integer "not null"
+    order_price integer "not null"
+    created_at timestamp "not null"
+    updated_at timestamp "not null"
+    created_by varchar(255)
+    updated_by varchar(255)
+  }
+  Item ||--o{ OrderItem : l
+  Item {
+    item_id bigint PK ""
+    item_name varchar(255) "not null"
+    price integer "not null"
+    stock integer "not null"
+    item_detail clob "not null"
+    item_sell_status varchar(255) "SELL/SOLD_OUT"
+    created_at timestamp "not null"
+    updated_at timestamp "not null"
+    created_by varchar(255)
+    updated_by varchar(255)
+  }
+  Item ||--o{ ItemImg : l
+  ItemImg{
+    item_img_id bigint PK ""
+    item_id bigint FK
+    img_name varchar(255)
+    img_url varchar(255)
+    ori_img_name varchar(255)
+    rep_img_yn varchar(255)
+    created_at timestamp "not null"
+    updated_at timestamp "not null"
+    created_by varchar(255)
+    updated_by varchar(255)
+  }
+  Member ||--|{ Cart : l
+  Cart {
+    cart_id bigint PK ""
+    member_id bigint FK ""
+    created_at timestamp "not null"
+    updated_at timestamp "not null"
+    created_by varchar(255)
+    updated_by varchar(255)
+  }
+  Cart ||--o{ CartItem : l
+  CartItem {
+    cart_item_id bigint PK ""
+    cart_id bigint FK ""
+    item_id bigint FK
+    count integer "not null"
+    created_at timestamp "not null"
+    updated_at timestamp "not null"
+    created_by varchar(255)
+    updated_by varchar(255)
+  }
+  Item ||--o{ CartItem : l
+
+
+```
 - 회원 정보를 중심으로 연관관계 매핑
   - `member` 한명은 여러개의 `orders`를 가질 수 있음
   - `order` 하나는 여러개의 `orderItem`을 가질 수 있음
@@ -47,6 +138,9 @@
   - Dto 로 입력받는 모든 필드 `NotBlank`
   - 필드에러 시 BindingResult 로 처리
   - 아이디, 이메일 중복 시 `alert` 처리
+- `Item`
+  - `Item`은 여러개의 `ItemImg` 가짐. 단방향 연관관계 설정
+  - `ItemImg`는 원래 파일이름, 고유 파일이름, 저장위치정보를 가짐.
 - `Order`
   - `Order`로 엔티티 생성 시 table 생성 불가 (DDL Error) => 테이블명 별도 지정
   - 한명의 Member는 여러개의 Order를 가짐 (양방향, 1:n)
@@ -54,16 +148,25 @@
   - `OrderItem`
     - Order가 생성되면 OrderItem 수량만큼 Item 재고 감소 (재고가 부족하면 Order 안됨)
     - Order가 취소되면 OrderItem 수량만큼 Item 재고 증가
-    - [_] Cart에서 Order로 넘어가면 재고변동 없음
+    - [ ] Cart에서 Order로 넘어가면 재고변동 없음
   - Order가 삭제되면 OrderItem도 삭제 (cascade = CascadeType.ALL, orphanRemoval = true)
 - `Cart`
-  - [_] Cart의 아이템을 전체주문하기, 부분주문하기 (주문이 일어나면 Cart에서 CartItem 삭제)
+  - [ ] Cart의 아이템을 전체주문하기, 부분주문하기 (주문이 일어나면 Cart에서 CartItem 삭제)
   - Cart가 Member를 참조(단방향, 1:1)
   - `CartItem`
     - Cart에 CartItem 추가되면 그 수량만큼 Item 재고 감소
     - Cart에서 CartItem 삭제되면 그 수량만큼 Item 재고 증가
-    - [_] Cart에서 Order로 넘어가면 재고변동 없음
+    - [ ] Cart에서 Order로 넘어가면 재고변동 없음
   - Cart가 삭제되면 CartItem도 삭제 (cascade = CascadeType.ALL, orphanRemoval = true)
+
+## 서비스 로직
+### 📑 상품 등록 및 조회
+#### 상품 등록
+- Image 파일전송을 위하여 form enctype=`"multipart/form-data"` 설정
+  - `ItemFormDto`로부터 Item정보를 받아오고 (form-data)
+  - `MultipartFile`로부터 ItemImage정보를 받아옴. (RequestParam)
+  - `ItemFormDto`의 값은 Controller에서 @Valid로 검증
+  - Image의 원래이름과, UUID로 바꾼 고유이름, 로컬경로 DB에 저장
 
 ## Trouble Shooting
 #### 📑 회원가입 페이지 접근해서 `submit`하면 401(Unauthorized) 에러 발생
