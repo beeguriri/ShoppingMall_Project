@@ -18,12 +18,16 @@
 - DB : H2 `jdbc:h2:tcp://localhost/~/shop`
 
 ## 프로젝트 일정
-- 7/5 전체적인 엔티티 설계, Item Entity, Member Entity 개발, Thymeleaf layout 잡기
-- 7/6 시큐리티를 이용한 회원가입 및 로그인, 회원정보수정(추가기능) 
-- 7/7 `Cart`, `Order` Entity 설계, 연관관계 매핑, Auditing 수정
-- 7/9 상품 등록
+- ✅ 7/5 전체적인 엔티티 설계, Item Entity, Member Entity 개발, Thymeleaf layout 잡기
+- ✅ 7/6 시큐리티를 이용한 회원가입 및 로그인, 회원정보수정(추가기능) 
+- ✅ 7/7 `Cart`, `Order` Entity 설계, 연관관계 매핑, Auditing 수정
+- ✅ 7/9 상품 등록
 - 7/10 상품 수정
 - 7/11 상품 목록 조회 및 상품 개별 조회
+- 7/12 주문
+- 7/13 주문
+- 7/14 카트
+- 7/15 카트
 - 나중에 보완 할 것
   - [ ] csrf 공부하기
   - [ ] url을 주소창에 입력해서 강제접근 시(principal==null) login 화면으로 redirect 하기
