@@ -10,6 +10,7 @@ import study.shop.entity.ItemImg;
 import study.shop.repository.ItemImgRepository;
 import study.shop.repository.ItemRepository;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 
 @Service
@@ -19,6 +20,7 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final ItemImgService itemImgService;
+    private final ItemImgRepository itemImgRepository;
 
     public Long saveItem(ItemFormDto itemFormDto, List<MultipartFile> multipartFileList) throws Exception {
 
@@ -39,4 +41,15 @@ public class ItemService {
         return item.getId();
     }
 
+    @Transactional(readOnly = true)
+    public ItemFormDto getItemDetail(Long itemId) {
+
+        List<ItemImg> itemImgList = itemImgRepository.findByItemIdOrderByIdAsc(itemId);
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(EntityNotFoundException::new);
+        ItemFormDto itemFormDto = ItemFormDto.of(item);
+        itemFormDto.setItemImgsList(itemImgList);
+
+        return itemFormDto;
+    }
 }

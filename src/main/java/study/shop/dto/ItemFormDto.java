@@ -53,7 +53,7 @@ public class ItemFormDto {
         return new Item(itemName, price, stock, itemDetail, itemSellStatus);
     }
 
-    public ItemFormDto of(Item item){
+    public static ItemFormDto of(Item item){
         return new ItemFormDto(
                 item.getId(),
                 item.getItemName(),
