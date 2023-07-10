@@ -24,10 +24,6 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
 
     private final JPAQueryFactory queryFactory;
 
-    public ItemRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
-
     @Override
     public Page<Item> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable) {
 
