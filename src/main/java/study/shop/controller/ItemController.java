@@ -28,13 +28,13 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    @GetMapping("/admin/items/new")
+    @GetMapping("/admin/item/new")
     public String itemForm(Model model) {
         model.addAttribute("itemFormDto", new ItemFormDto());
         return "items/itemForm";
     }
 
-    @PostMapping("/admin/items/new")
+    @PostMapping("/admin/item/new")
     public String itemForm(@Valid ItemFormDto itemFormDto, BindingResult bindingResult, Model model,
                            @RequestParam("itemImgFile")List<MultipartFile> multipartFiles) {
         if(bindingResult.hasErrors())
@@ -55,7 +55,7 @@ public class ItemController {
         return "redirect:/";
     }
 
-    @GetMapping("/admin/items/{itemId}")
+    @GetMapping("/admin/item/{itemId}")
     public String getItemDetail(@PathVariable("itemId") Long itemId, Model model){
 
         try {
@@ -71,7 +71,7 @@ public class ItemController {
         return "items/itemForm";
     }
 
-    @PostMapping("/admin/items/{itemId}")
+    @PostMapping("/admin/item/{itemId}")
     public String itemUpdate(@Valid ItemFormDto itemFormDto, BindingResult bindingResult,
                              @RequestParam("itemImgFile") List<MultipartFile> multipartFiles,
                              Model model) {
