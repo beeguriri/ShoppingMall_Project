@@ -133,7 +133,7 @@
         </div>
 
         <div th:unless="${#strings.isEmpty(itemFormDto.id)}" style="text-align: center">
-            <button th:formaction="@{'/admin/item/'+${itemFormDto.id}}" type="submit"
+            <button th:formaction="@{'/admin/items/'+${itemFormDto.id}}" type="submit"
                     class="btn btn-primary">수정</button>
         </div>
 
