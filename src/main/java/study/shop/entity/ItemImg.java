@@ -13,6 +13,7 @@ import javax.persistence.*;
 public class ItemImg extends BaseEntity{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "item_img_id")
     private Long id;
 
     private String imgName;

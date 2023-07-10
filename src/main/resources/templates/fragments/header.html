@@ -13,7 +13,7 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
-                            <a class="nav-link active" href="/admin/items/new">상품등록</a>
+                            <a class="nav-link active" href="/admin/item/new">상품등록</a>
                         </li>
                         <li class="nav-item" sec:authorize="hasAnyAuthority('ROLE_ADMIN')">
                             <a class="nav-link active" href="/admin/items">상품관리</a>
@@ -38,8 +38,9 @@
                         </li>
                     </ul>
                     <!-- 검색관련 -->
-                    <form class="d-flex" role="search">
-                        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                    <form class="d-flex" th:action="@{/}" method="get">
+                        <input class="form-control mr-sm-2" name="searchQuery"
+                               type="search" placeholder="Search" aria-label="Search">
                         <button class="btn btn-outline-success" type="submit">Search</button>
                     </form>
                 </div>
