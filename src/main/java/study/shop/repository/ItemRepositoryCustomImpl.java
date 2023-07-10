@@ -10,7 +10,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.thymeleaf.util.StringUtils;
 import study.shop.dto.ItemSearchDto;
+import study.shop.dto.MainItemDto;
+import study.shop.dto.QMainItemDto;
 import study.shop.entity.Item;
+import study.shop.entity.QItemImg;
 import study.shop.entity.constant.ItemSellStatus;
 
 import javax.persistence.EntityManager;
@@ -19,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static study.shop.entity.QItem.item;
+import static study.shop.entity.QItemImg.*;
 
 @RequiredArgsConstructor
 public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
@@ -33,7 +37,8 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
     @Override
     public Page<Item> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable) {
 
-        List<Item> content = queryFactory.selectFrom(item)
+        List<Item> content = queryFactory
+                .selectFrom(item)
                 .where(
                         regDtsAfter(itemSearchDto.getSearchDateType()),
                         searchSellStatusEq(itemSearchDto.getSearchSellStatus()),
@@ -54,6 +59,39 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
                 );
 
         return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public Page<MainItemDto> getMainItemPage(ItemSearchDto itemSearchDto, Pageable pageable) {
+
+        //이미지를 기준으로 조인
+        List<MainItemDto> content = queryFactory
+                .select(
+                        new QMainItemDto(
+                                item.id,
+                                item.itemName,
+                                item.itemDetail,
+                                itemImg.imgUrl,
+                                item.price
+                        ))
+                .from(itemImg)
+                .join(itemImg.item, item)
+                .where(itemImg.repImgYn.eq("Y"))
+                .where(itemNameLike(itemSearchDto.getSearchQuery()))
+                .orderBy(item.id.desc())
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        JPAQuery<Long> countQuery = queryFactory
+                .select(itemImg.count())
+                .from(itemImg)
+                .join(itemImg.item, item)
+                .where(itemImg.repImgYn.eq("Y"))
+                .where(itemNameLike(itemSearchDto.getSearchQuery()));
+
+        return PageableExecutionUtils.getPage(content, pageable, countQuery::fetchOne);
+
     }
 
     private BooleanExpression regDtsAfter(String searchDateType) {
@@ -87,5 +125,9 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
             return item.createdBy.like("%"+searchQuery+"%");
 
         return null;
+    }
+
+    private BooleanExpression itemNameLike(String searchQuery) {
+        return StringUtils.isEmpty(searchQuery) ? null : item.itemName.like("%"+searchQuery+"%");
     }
 }
