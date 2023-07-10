@@ -22,8 +22,8 @@
 - ✅ 7/6 시큐리티를 이용한 회원가입 및 로그인, 회원정보수정(추가기능) 
 - ✅ 7/7 `Cart`, `Order` Entity 설계, 연관관계 매핑, Auditing 수정
 - ✅ 7/9 상품 등록
-- 7/10 상품 수정
-- 7/11 상품 목록 조회 및 상품 개별 조회
+- ✅ 7/10 상품 수정, 상품 목록 조회 및 페이징, 메인화면 페이징 
+- 7/11 상품 상세페이지
 - 7/12 주문
 - 7/13 주문
 - 7/14 카트
@@ -32,6 +32,9 @@
   - [ ] csrf 공부하기
   - [ ] url을 주소창에 입력해서 강제접근 시(principal==null) login 화면으로 redirect 하기
   - [ ] 시큐리티가 적용되어 있어서 테스트 코드 짜는게 너무 힘들다...
+  - [ ] 첨부파일을 추가하거나 수정은 되는데, 기존에 첨부되어있는 파일 수를 줄일수가 없음.
+  - [ ] 상품관리 `Page<Item>` 에서 Item Entity 그대로 내보내고 있음..
+  - [ ] 이미지파일 엑박
 
 ## 엔티티 설계
 ```mermaid
@@ -171,6 +174,29 @@ erDiagram
   - `MultipartFile`로부터 ItemImage정보를 받아옴. (RequestParam)
   - `ItemFormDto`의 값은 Controller에서 @Valid로 검증
   - Image의 원래이름과, UUID로 바꾼 고유이름, 로컬경로 DB에 저장
+#### 상품 수정
+- @pathVariable `itemId`로 Item 정보를 받아옴
+  - 이때 `item`에 연관 된 ItemImage정보를 Dto에 넣어줌
+- 상품 수정 시 파일과 `item_img_id` 같이 form전송
+  - list의 size가 항상 5!!! => 첨부파일 폼을 5개 만들어놓았으므로! 
+```html
+<input type="file" class="custom-file-input" name="itemImgFile">
+<input type="hidden" name="itemImgIds" th:value="${itemImg.id}">
+```
+#### 상품 관리
+- JPA + QueryDsl 구현하기 위하여
+  - 사용자 정의 인터페이스 작성 `ItemRepositoryCustom`
+  - 사용자 정의 인터페이스 구현 `ItemRepositoryCustomImpl`
+  - 사용자 정의 인터페이스 상속 `ItemRepository extends ItemRepositoryCustom`
+- 페이징 화면 구성하기
+  - start : (현재페이지번호/보여 줄 페이지 수) + 1
+  - end : start + (보여 줄 페이지 수 - 1)
+  - 첫번째 페이지면 `Previous` 클릭 불가
+  - `Privious` 클릭 시 이전 페이지로 이동 (javascript page함수 호출)
+  - 페이지 번호 클릭 시 해당 페이지로 이동 (javascript page함수 호출)
+  - 마지막 페이지일 경우 `Next` 클릭 불가
+  - `Next` 클릭 시 다음 페이지로 이동 (javascript page함수 호출)
+  - `/admin/items/1?searchDateType=all&searchSellStatus=&searchBy=itemName&searchQuery=`
 
 ## Trouble Shooting
 #### 📑 회원가입 페이지 접근해서 `submit`하면 401(Unauthorized) 에러 발생
@@ -195,3 +221,72 @@ erDiagram
   - 최초 가입할때는 db에 값 있는지 확인해서 처리하면 되는데
   - 수정 시에는 본인의 email 을 읽어와서.. 동일한 방식으로 처리 시 무조건 중복발생
   - SQL문 검증에서 .. 중복값 입력되면 발생되는 에러를 잡아서 예외처리
+
+#### 📑 QueryDsl 사용을 위한 EntityManager 주입
+- 기존: `ItemRepositoryCustomImple` 생성자에다가 주입해줌
+```java
+@RequiredArgsConstructor
+public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
+
+    private final JPAQueryFactory queryFactory;
+    
+    public ItemRepositoryCustomImpl(EntityManager em) {
+        this.queryFactory = new JPAQueryFactory(em);
+    }
+  ...
+}
+```
+- 문제: `org.springframework.beans.factory.UnsatisfiedDependencyException` 발생
+- 확인: `@Autowired`로 의존성 주입 안해줌...
+```java
+@RequiredArgsConstructor
+public class ItemRepositoryCustomImpl implements ItemRepositoryCustom {
+
+    private final JPAQueryFactory queryFactory;
+
+    @Autowired
+    public ItemRepositoryCustomImpl(EntityManager em) {
+        this.queryFactory = new JPAQueryFactory(em);
+    }
+  ...
+}
+```
+- 다른방법: Config 파일에서 `@Bean` 생성해주기
+```java
+@Bean
+JPAQueryFactory jpaQueryFactory(EntityManager em) {
+    return new JPAQueryFactory(em);
+}
+```
+
+#### 📑 페이징 구현
+- 문제
+  - Controller에서 `/admin/items` 호출 시 목록 3개, 페이지 3개 생기는거 확인
+  - `/admin/items/{page}` 로 호출이 안됨 (500 Error)
+  - java.lang.IllegalStateException: Ambiguous handler methods mapped for '/admin/items/0'
+  - RestController 만들어서 `/admin/items/{page}` 호출 시 이상없이 잘 됨. 
+- 원인 
+  - ItemId를 PathVariable로 가져오는 URI와
+  - Page를 PathVariable로 가져오는 URI가 같아서 발생하는 문제
+- 해결
+  - URI 수정 해줌
+```java
+//기존
+@GetMapping("/admin/items/{itemId}")
+public String getItemDetail(@PathVariable("itemId") Long itemId, Model model)
+        ...
+}
+
+@GetMapping(value = {"/admin/items", "/admin/items/{page}"})
+public String adminItemPage(ItemSearchDto itemSearchDto,
+            @PathVariable("page") Optional<Integer> page, Model model){
+        ...
+}
+```
+```java
+//수정
+@GetMapping("/admin/item/{itemId}")
+public String getItemDetail(@PathVariable("itemId") Long itemId, Model model)
+        ...
+}
+```
