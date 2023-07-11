@@ -13,7 +13,6 @@ import study.shop.dto.ItemSearchDto;
 import study.shop.dto.MainItemDto;
 import study.shop.dto.QMainItemDto;
 import study.shop.entity.Item;
-import study.shop.entity.QItemImg;
 import study.shop.entity.constant.ItemSellStatus;
 
 import javax.persistence.EntityManager;
