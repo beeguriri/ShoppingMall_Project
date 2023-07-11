@@ -23,18 +23,19 @@
 - ✅ 7/7 `Cart`, `Order` Entity 설계, 연관관계 매핑, Auditing 수정
 - ✅ 7/9 상품 등록
 - ✅ 7/10 상품 수정, 상품 목록 조회 및 페이징, 메인화면 페이징 
-- 7/11 상품 상세페이지
-- 7/12 주문
-- 7/13 주문
-- 7/14 카트
-- 7/15 카트
+- ✅ 7/11 상품 상세페이지, 주문 
+  - 주문 List queryDsl 사용 (책에서는 jpql로(`@Query`) 처리함)
+- 7/12 카트
+- 7/13 카트
 - 나중에 보완 할 것
   - [ ] csrf 공부하기
   - [ ] url을 주소창에 입력해서 강제접근 시(principal==null) login 화면으로 redirect 하기
   - [ ] 시큐리티가 적용되어 있어서 테스트 코드 짜는게 너무 힘들다...
   - [ ] 첨부파일을 추가하거나 수정은 되는데, 기존에 첨부되어있는 파일 수를 줄일수가 없음.
   - [ ] 상품관리 `Page<Item>` 에서 Item Entity 그대로 내보내고 있음..
-  - [ ] 이미지파일 엑박
+  - [x] ~~이미지파일 엑박 : 해결~~
+  - [ ] 상품 상세정보 아래에 상품평 남기기
+
 
 ## 엔티티 설계
 ```mermaid
@@ -197,6 +198,18 @@ erDiagram
   - 마지막 페이지일 경우 `Next` 클릭 불가
   - `Next` 클릭 시 다음 페이지로 이동 (javascript page함수 호출)
   - `/admin/items/1?searchDateType=all&searchSellStatus=&searchBy=itemName&searchQuery=`
+#### 메인 페이지
+  - 로그인 하지 않아도 상품목록 확인 가능
+  - 상품 클릭 시 상세화면은 로그인 필요
+  - 
+### 📑 주문
+#### 주문 생성 및 취소
+- 웹페이지의 새로고침 없이 서버에 주문을 요청하기 위해서 비동기 방식 사용
+  - `@RequestBody` , `@ResponseBody` 사용
+  - 주문하면 상품 재고 감소
+  - 주문 취소하면 상품 재고 증가
+#### 주문 조회
+- 로그인 된 사용자의 주문 내역 조회, 페이징
 
 ## Trouble Shooting
 #### 📑 회원가입 페이지 접근해서 `submit`하면 401(Unauthorized) 에러 발생
@@ -290,3 +303,24 @@ public String getItemDetail(@PathVariable("itemId") Long itemId, Model model)
         ...
 }
 ```
+#### 📑 저장한 이미지 불러오기
+- 문제 : 이미지파일 업로드 시 지정한 폴더 및 DB에는 저장 되나, 불러오는게 안됨.
+- 확인
+  - url 직접 입력하면 뜸
+    - file:///.../ShoppingMallProject/images/item/c63ffd57-17b6-4be0-80b3-390b9e208e06.png
+  - 웹에서 이미지 경로 확인 시 안뜸
+    - http://localhost:8080/images/item/c63ffd57-17b6-4be0-80b3-390b9e208e06.png
+- 해결
+  - 외부경로 접근을 위하여 리소스 핸들러 설정
+  - ".../ShoppingMallProject" 까지를 `localhost:8080` 으로 인식하는 거 같음!
+```yaml
+# 기존
+itemImgLocation: .../ShoppingMallProject/shop/item
+uploadPath: .../ShoppingMallProject/shop
+
+# 변경
+itemImgLocation: .../ShoppingMallProject/item
+uploadPath: .../ShoppingMallProject/
+```
+- 추가
+  - `SecutiryConfig` 에서 `/images/**` permitAll() 해줘야 로그인하지 않아도 보임
