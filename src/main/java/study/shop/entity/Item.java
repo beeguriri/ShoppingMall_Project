@@ -3,6 +3,7 @@ package study.shop.entity;
 import lombok.*;
 import study.shop.dto.ItemFormDto;
 import study.shop.entity.constant.ItemSellStatus;
+import study.shop.exception.OutOfStockException;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -77,7 +78,8 @@ public class Item extends BaseEntity{
 
         //resultStock <0 일때, 예외처리 필요
         if(resultStock<0)
-            throw new RuntimeException("재고부족");
+            throw new OutOfStockException(
+                    "상품의 재고가 부족합니다. (현재 재고수량: " + this.stock + ")");
 
         this.stock = resultStock;
     }
