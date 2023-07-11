@@ -1,14 +1,18 @@
 package study.shop.service;
 
+import com.querydsl.jpa.impl.JPAQuery;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import study.shop.dto.OrderDto;
-import study.shop.entity.Item;
-import study.shop.entity.Member;
-import study.shop.entity.Order;
-import study.shop.entity.OrderItem;
+import study.shop.dto.OrderHistoryDto;
+import study.shop.dto.OrderItemDto;
+import study.shop.entity.*;
+import study.shop.repository.ItemImgRepository;
 import study.shop.repository.ItemRepository;
 import study.shop.repository.MemberRepository;
 import study.shop.repository.OrderRepository;
@@ -24,6 +28,7 @@ public class OrderService {
 
     private final MemberRepository memberRepository;
     private final ItemRepository itemRepository;
+    private final ItemImgRepository itemImgRepository;
     private final OrderRepository orderRepository;
 
     public Long order(OrderDto orderDto, String userid) {
@@ -42,5 +47,31 @@ public class OrderService {
         orderRepository.save(order);
 
         return order.getId();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<OrderHistoryDto> getOrderList(String userid, Pageable pageable){
+
+        List<Order> orders = orderRepository.findOrders(userid, pageable);
+        JPAQuery<Long> countQuery = orderRepository.countQuery(userid);
+
+        List<OrderHistoryDto> orderHistoryList = new ArrayList<>();
+
+        for(Order order : orders) {
+            OrderHistoryDto orderHistoryDto = new OrderHistoryDto(order);
+            List<OrderItem> orderItems = order.getOrderItems();
+
+            for(OrderItem orderItem : orderItems) {
+                ItemImg itemImg = itemImgRepository.findByItemIdAndRepImgYn(orderItem.getItem().getId(), "Y");
+                OrderItemDto orderItemDto = new OrderItemDto(orderItem, itemImg.getImgUrl());
+                orderHistoryDto.addOrderItemDto(orderItemDto);
+            }
+
+            orderHistoryList.add(orderHistoryDto);
+        }
+
+//        return new PageImpl<>(orderHistoryList, pageable, totalCount);
+        return PageableExecutionUtils.getPage(orderHistoryList, pageable, countQuery::fetchOne);
+
     }
 }
