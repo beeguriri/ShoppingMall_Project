@@ -8,6 +8,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.util.StringUtils;
 import study.shop.dto.OrderDto;
 import study.shop.dto.OrderHistoryDto;
 import study.shop.dto.OrderItemDto;
@@ -73,5 +74,26 @@ public class OrderService {
 //        return new PageImpl<>(orderHistoryList, pageable, totalCount);
         return PageableExecutionUtils.getPage(orderHistoryList, pageable, countQuery::fetchOne);
 
+    }
+
+    @Transactional(readOnly = true)
+    public boolean validateOrder(Long orderId, String userid) {
+        Member curMember = memberRepository.findByUserid(userid)
+                .orElseThrow(
+                        () -> new UsernameNotFoundException(userid)
+                );
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        Member orderMember = order.getMember();
+
+        return StringUtils.equals(curMember.getUserid(), orderMember.getUserid());
+    }
+
+    public void cancelOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(EntityNotFoundException::new);
+        order.cancel();
     }
 }
