@@ -25,5 +25,5 @@ logging.level:
 
 custom:
   path:
-    itemImgLocation: D:/Coding Practice/SpringBoot/ShoppingMallProject/shop/item
-    uploadPath: file:///D:/Coding Practice/SpringBoot/ShoppingMallProject/shop
+    itemImgLocation: D:/Coding Practice/SpringBoot/ShoppingMallProject/item
+    uploadPath: file:///D:/Coding Practice/SpringBoot/ShoppingMallProject/
