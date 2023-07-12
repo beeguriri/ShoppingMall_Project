@@ -11,6 +11,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import study.shop.dto.CartDetailDto;
 import study.shop.dto.CartItemDto;
+import study.shop.dto.CartOrderDto;
 import study.shop.service.CartService;
 
 import javax.validation.Valid;
@@ -84,5 +85,22 @@ public class CartController {
         cartService.deleteCartItem(cartItemId);
 
         return new ResponseEntity<>(cartItemId, HttpStatus.OK);
+    }
+
+    @PostMapping("/cart/orders")
+    public @ResponseBody ResponseEntity<?> orderCartItem(@RequestBody CartOrderDto cartOrderDto,
+                                                         Principal principal) {
+
+        List<CartOrderDto> cartOrderDtoList = cartOrderDto.getCartOrderDtoList();
+        if(cartOrderDtoList == null || cartOrderDtoList.size()==0)
+            return new ResponseEntity<>("주문 할 상품을 선택해 주세요.", HttpStatus.FORBIDDEN);
+
+        for(CartOrderDto cartOrder : cartOrderDtoList)
+            if(!cartService.validateCartItem(cartOrder.getCartItemId(), principal.getName()))
+                return new ResponseEntity<>("주문 권한이 없습니다.", HttpStatus.FORBIDDEN);
+
+        Long orderId = cartService.orderCartItem(cartOrderDtoList, principal.getName());
+
+        return new ResponseEntity<>(orderId, HttpStatus.OK);
     }
 }

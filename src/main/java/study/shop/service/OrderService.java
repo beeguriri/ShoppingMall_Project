@@ -44,7 +44,7 @@ public class OrderService {
         orderItemList.add(orderItem);
 
         //스프레드 연산자로 펼쳐놨는데.. 어떻게 받아올지 좀더 고민
-        Order order = Order.createOrder(member, orderItem);
+        Order order = Order.createOrder(member, orderItemList);
         orderRepository.save(order);
 
         return order.getId();
@@ -95,5 +95,28 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(EntityNotFoundException::new);
         order.cancel();
+    }
+
+    public Long cartToOrder(List<OrderDto> orderDtoList, String userid) {
+
+        Member member = memberRepository.findByUserid(userid)
+                .orElseThrow(() -> new UsernameNotFoundException(userid));
+
+        List<OrderItem> orderItemList = new ArrayList<>();
+
+        for(OrderDto orderDto : orderDtoList) {
+
+            Item item = itemRepository.findById(orderDto.getItemId())
+                    .orElseThrow(EntityNotFoundException::new);
+
+            OrderItem orderItem = OrderItem.createOrderItem(item, orderDto.getOrderPrice(), orderDto.getCount());
+
+            orderItemList.add(orderItem);
+        }
+
+        Order order = Order.createOrder(member, orderItemList);
+        orderRepository.save(order);
+
+        return order.getId();
     }
 }
