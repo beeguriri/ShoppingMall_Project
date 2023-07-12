@@ -49,10 +49,10 @@ public class Cart extends BaseEntity{
 //    }
 
     //비즈니스 로직
-    public void cancel() {
-        for(CartItem item : cartItems)
-            item.cancel();
-    }
+//    public void cancel() {
+//        for(CartItem item : cartItems)
+//            item.cancel();
+//    }
 
     public int getTotalPrice() {
         return cartItems.stream()

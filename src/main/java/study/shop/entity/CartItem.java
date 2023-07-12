@@ -43,9 +43,9 @@ public class CartItem extends BaseEntity{
     }
 
     //비즈니스 로직
-    public void cancel() {
-        getItem().addStock(count);
-    }
+//    public void cancel() {
+//        getItem().addStock(count);
+//    }
 
     //조회 로직
     public int getTotalPrice() {
