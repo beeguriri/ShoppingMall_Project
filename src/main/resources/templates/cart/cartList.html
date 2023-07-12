@@ -130,6 +130,50 @@
 
         }
 
+        const orderCartItem = () => {
+
+            // const token = $("meta[name='_csrf']").attr("content");
+            // const header = $("meta[name='_csrf_header']").attr("content");
+
+            const url = "/cart/orders";
+            const dataList = [];
+            const paramData = {};
+
+            $("input[name=cartChkBox]:checked").each(function () {
+
+                const cartItemId = $(this).val();
+                const data = {};
+                data["cartItemId"] = cartItemId;
+                dataList.push(data);
+            });
+
+            paramData["cartOrderDtoList"] = dataList;
+            const param = JSON.stringify(paramData);
+
+            $.ajax({
+                url: url,
+                type: "POST",
+                contentType: "application/json",
+                data: param,
+                // beforeSend: (xhr) => {
+                //     xhr.setRequestHeader(header, token);
+                // },
+                dataType: "json",
+                cache: false,
+                success: (result, status) => {
+                    alert("주문이 완료 되었습니다.");
+                    location.href='/orders';
+                },
+                error: (jqXHR, status, error) => {
+                    if(jqXHR.status === 401) {
+                        alert("로그인 후 이용해 주세요");
+                        location.href='/members/login';
+                    } else
+                        alert(jqXHR.responseText);
+                }
+            })
+        }
+
         const checkAll = () => {
             if ($("#checkAll").prop("checked")) {
                 $("input[name=cartChkBox]").prop("checked", true);
@@ -205,7 +249,7 @@
     </h2>
 
     <div class="text-center mt-3">
-        <button type="button" class="btn btn-primary btn-lg">주문하기</button>
+        <button type="button" onclick="orderCartItem()" class="btn btn-primary btn-lg">주문하기</button>
     </div>
 
     <!-- 페이징
