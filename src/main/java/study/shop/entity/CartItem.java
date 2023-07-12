@@ -30,14 +30,14 @@ public class CartItem extends BaseEntity{
     private int count;
 
     //생성메서드
-    public static CartItem createCartItem(Item item, int count){
+    public static CartItem createCartItem(Cart cart, Item item, int count){
 
         CartItem cartItem = new CartItem();
         cartItem.setItem(item);
         cartItem.setCount(count);
+        cart.addCartItem(cartItem);
 
-        item.removeStock(count);
-
+//        item.removeStock(count);
         return cartItem;
 
     }
@@ -50,5 +50,10 @@ public class CartItem extends BaseEntity{
     //조회 로직
     public int getTotalPrice() {
         return getCount() * getItem().getPrice();
+    }
+
+    //기존 상품에 count 추가 로직
+    public void addCount(int count){
+        this.count += count;
     }
 }
