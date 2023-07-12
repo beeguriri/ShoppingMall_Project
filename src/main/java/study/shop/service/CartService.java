@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.util.StringUtils;
 import study.shop.dto.CartDetailDto;
 import study.shop.dto.CartItemDto;
 import study.shop.entity.Cart;
@@ -71,6 +72,27 @@ public class CartService {
 
         return cartItemRepository.findCartDetailDtoList(cart.getId());
 
+    }
+
+    @Transactional(readOnly = true)
+    public boolean validateCartItem(Long cartItemId, String userid) {
+
+        Member curMember = memberRepository.findByUserid(userid)
+                .orElseThrow(() -> new UsernameNotFoundException(userid));
+
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(EntityNotFoundException::new);
+
+        Member savedMember = cartItem.getCart().getMember();
+
+        return StringUtils.equals(curMember.getUserid(), savedMember.getUserid());
+
+    }
+
+    public void updateCartItemCount(Long cartItemId, int count) {
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(EntityNotFoundException::new);
+        cartItem.updateCount(count);
     }
 
 }
