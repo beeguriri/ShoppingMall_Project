@@ -3,7 +3,6 @@ package study.shop.entity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 import study.shop.dto.MemberFormDto;
 import study.shop.entity.constant.ItemSellStatus;
 import study.shop.repository.MemberRepository;
@@ -11,10 +10,11 @@ import study.shop.repository.OrderRepository;
 import study.shop.service.MemberService;
 
 import javax.persistence.EntityManager;
-
+import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static study.shop.entity.Order.createOrder;
 import static study.shop.entity.OrderItem.createOrderItem;
 
@@ -40,11 +40,14 @@ class OrderTest {
         memberService.createMember(memberForm);
         Member member = memberRepository.findByUserid(memberForm.getUserid()).get();
 
+        List<OrderItem> list = new ArrayList<>();
         OrderItem orderItem1 = createOrderItem(createItem("itemA", 1000, 10), 1000, 5);
         OrderItem orderItem2 = createOrderItem(createItem("itemB", 2000, 10), 1000, 1);
+        list.add(orderItem1);
+        list.add(orderItem2);
 
         //when
-        Order order = createOrder(member, orderItem1, orderItem2);
+        Order order = createOrder(member, list);
         orderRepository.save(order);
 
         em.clear();
@@ -80,17 +83,20 @@ class OrderTest {
 
         Item itemA = createItem("itemA", 1000, 10);
         Item itemB = createItem("itemB", 2000, 10);
+        List<OrderItem> list = new ArrayList<>();
         OrderItem orderItem1 = createOrderItem(itemA, 1000, 5);
         OrderItem orderItem2 = createOrderItem(itemB, 2000, 1);
+        list.add(orderItem1);
+        list.add(orderItem2);
 
-        Order order = createOrder(member, orderItem1, orderItem2);
+        Order order = createOrder(member, list);
         orderRepository.save(order);
 
         em.clear();
 
         order.cancel();
-        List<OrderItem> list = order.getOrderItems();
-        for (OrderItem orderItem : list) {
+        List<OrderItem> orderItemListlist = order.getOrderItems();
+        for (OrderItem orderItem : orderItemListlist) {
             System.out.println("orderItem = " + orderItem.getItem());
         }
 

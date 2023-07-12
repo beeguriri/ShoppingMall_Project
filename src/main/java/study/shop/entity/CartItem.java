@@ -30,25 +30,35 @@ public class CartItem extends BaseEntity{
     private int count;
 
     //생성메서드
-    public static CartItem createCartItem(Item item, int count){
+    public static CartItem createCartItem(Cart cart, Item item, int count){
 
         CartItem cartItem = new CartItem();
         cartItem.setItem(item);
         cartItem.setCount(count);
+        cart.addCartItem(cartItem);
 
-        item.removeStock(count);
-
+//        item.removeStock(count);
         return cartItem;
 
     }
 
     //비즈니스 로직
-    public void cancel() {
-        getItem().addStock(count);
-    }
+//    public void cancel() {
+//        getItem().addStock(count);
+//    }
 
     //조회 로직
     public int getTotalPrice() {
         return getCount() * getItem().getPrice();
+    }
+
+    //기존 상품에 count 추가 로직
+    public void addCount(int count){
+        this.count += count;
+    }
+
+    //장바구니 상품 수량 변경
+    public void updateCount(int count){
+        this.count = count;
     }
 }
