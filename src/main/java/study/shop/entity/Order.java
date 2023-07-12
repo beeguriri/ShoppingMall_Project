@@ -46,7 +46,7 @@ public class Order extends BaseEntity{
     }
 
     //생성메서드
-    public static Order createOrder(Member member, OrderItem... orderItems){
+    public static Order createOrder(Member member, List<OrderItem> orderItems){
 
         Order order = new Order();
 
