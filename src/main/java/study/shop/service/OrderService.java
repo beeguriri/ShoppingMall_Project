@@ -40,7 +40,7 @@ public class OrderService {
 
         List<OrderItem> orderItemList = new ArrayList<>();
 
-        OrderItem orderItem = OrderItem.createOrderItem(item, orderDto.getOrderPrice(), orderDto.getCount());
+        OrderItem orderItem = OrderItem.createOrderItem(item, orderDto.getCount());
         orderItemList.add(orderItem);
 
         //스프레드 연산자로 펼쳐놨는데.. 어떻게 받아올지 좀더 고민
@@ -109,7 +109,7 @@ public class OrderService {
             Item item = itemRepository.findById(orderDto.getItemId())
                     .orElseThrow(EntityNotFoundException::new);
 
-            OrderItem orderItem = OrderItem.createOrderItem(item, orderDto.getOrderPrice(), orderDto.getCount());
+            OrderItem orderItem = OrderItem.createOrderItem(item, orderDto.getCount());
 
             orderItemList.add(orderItem);
         }
