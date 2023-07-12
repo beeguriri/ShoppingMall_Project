@@ -1,6 +1,13 @@
 # ShoppingMall_Project
  '스프링부트 쇼핑몰프로젝트 with JPA' 책을 참조하여 공부하고 있습니다.
 
+## Navigation
+- [프로젝트 생성 및 세팅](#프로젝트-생성-및-세팅)
+- [프로젝트 일정](#프로젝트-일정)
+- [엔티티 설계](#엔티티-설계)
+- [서비스 로직](#서비스-로직)
+- [Trouble Shooting](#trouble-shooting)
+
 ## 프로젝트 생성 및 세팅
 - 'https://start.spring.io/' 에서 프로젝트 생성
     - SpringBoot `2.7.13`
@@ -25,8 +32,10 @@
 - ✅ 7/10 상품 수정, 상품 목록 조회 및 페이징, 메인화면 페이징 
 - ✅ 7/11 상품 상세페이지, 주문 
   - 주문 List queryDsl 사용 (책에서는 jpql로(`@Query`) 처리함)
-- 7/12 카트
-- 7/13 카트
+  - Dto 객체에 QueryDsl 사용 시 반드시 `@QueryProjection` 추가해주기
+- ✅ 7/12 카트에 상품추가, 수정, 삭제, 카트 목록 보기, 카트에 있는 상품 주문하기
+  - QueryDsl로 Join 하기  
+- 7/13 init 데이터 넣고 테스트 하기, csrf 해결하기
 - 나중에 보완 할 것
   - [ ] csrf 공부하기
   - [ ] url을 주소창에 입력해서 강제접근 시(principal==null) login 화면으로 redirect 하기
@@ -35,7 +44,8 @@
   - [ ] 상품관리 `Page<Item>` 에서 Item Entity 그대로 내보내고 있음..
   - [x] ~~이미지파일 엑박 : 해결~~
   - [ ] 상품 상세정보 아래에 상품평 남기기
-
+  - [ ] 원래 쇼핑몰 서비스는 할인정책 등으로 인하여 orderPrice와 itemPrice가 다르다고 했음
+    - 현재는 orderPrice에 item 가격 넣어놈.. (cart에서 주문 시 orderprice가 안넘어가는 문제가 있어서..) 
 
 ## 엔티티 설계
 ```mermaid
@@ -123,8 +133,6 @@ erDiagram
     updated_by varchar(255)
   }
   Item ||--o{ CartItem : l
-
-
 ```
 - 회원 정보를 중심으로 연관관계 매핑
   - `member` 한명은 여러개의 `orders`를 가질 수 있음
@@ -156,15 +164,10 @@ erDiagram
   - `OrderItem`
     - Order가 생성되면 OrderItem 수량만큼 Item 재고 감소 (재고가 부족하면 Order 안됨)
     - Order가 취소되면 OrderItem 수량만큼 Item 재고 증가
-    - [ ] Cart에서 Order로 넘어가면 재고변동 없음
   - Order가 삭제되면 OrderItem도 삭제 (cascade = CascadeType.ALL, orphanRemoval = true)
 - `Cart`
-  - [ ] Cart의 아이템을 전체주문하기, 부분주문하기 (주문이 일어나면 Cart에서 CartItem 삭제)
+  - Cart의 아이템을 전체주문하기, 부분주문하기 (주문이 일어나면 Cart에서 CartItem 삭제)
   - Cart가 Member를 참조(단방향, 1:1)
-  - `CartItem`
-    - Cart에 CartItem 추가되면 그 수량만큼 Item 재고 감소
-    - Cart에서 CartItem 삭제되면 그 수량만큼 Item 재고 증가
-    - [ ] Cart에서 Order로 넘어가면 재고변동 없음
   - Cart가 삭제되면 CartItem도 삭제 (cascade = CascadeType.ALL, orphanRemoval = true)
 
 ## 서비스 로직
@@ -201,7 +204,6 @@ erDiagram
 #### 메인 페이지
   - 로그인 하지 않아도 상품목록 확인 가능
   - 상품 클릭 시 상세화면은 로그인 필요
-  - 
 ### 📑 주문
 #### 주문 생성 및 취소
 - 웹페이지의 새로고침 없이 서버에 주문을 요청하기 위해서 비동기 방식 사용
@@ -210,6 +212,22 @@ erDiagram
   - 주문 취소하면 상품 재고 증가
 #### 주문 조회
 - 로그인 된 사용자의 주문 내역 조회, 페이징
+### 📑 장바구니
+#### 장바구니 생성 및 아이템 추가
+- 비동기 방식 사용 (`@RequestBody` , `@ResponseBody`)
+- 해당 아이디에 카트아이디가 있으면 아이템 추가
+- 없으면 카트 생성 후 추가
+#### 장바구니 수량 수정 및 삭제
+- 비동기 방식 사용 (`@RequestBody` , `@ResponseBody`)
+- 로그인 된 사용자 정보 인증 후 
+- 수량 수정 시 새로고침 없이 현재페이지
+- 아이템 삭제 시 `/cart` 호출하여 새로고침
+#### 장바구니에서 주문하기
+- 여러개의 상품을 하나의 주문에 담을 수 있음 (체크박스로 판단)
+- `CartOrderDto`를 통해 cart에 있는 `cart_item_id` 가져옴
+- `cart_item_id`로 `OrderDto` List 만들어서 `order` 생성
+- 주문 한 상품은 장바구니에서 삭제하는 로직 추가
+
 
 ## Trouble Shooting
 #### 📑 회원가입 페이지 접근해서 `submit`하면 401(Unauthorized) 에러 발생
@@ -324,3 +342,128 @@ uploadPath: .../ShoppingMallProject/
 ```
 - 추가
   - `SecutiryConfig` 에서 `/images/**` permitAll() 해줘야 로그인하지 않아도 보임
+#### 📑 QueryDsl Join 시 cross join 발생
+- H2 데이터베이스에서 쿼리문으로 조인 시 데이터 정상출력 확인
+```sql
+select * from cart_item 
+join item_img
+where cart_item.item_id = item_img.item_id 
+  and cart_id=1 
+  and item_img.rep_img_yn='Y';
+```
+- 문제 1: QueryDsl로 구현 시 join 문제 발생
+- > java.lang.IllegalArgumentException: itemImg.item is not a root path
+```java
+.from(cartItem)
+.join(cartItem.item, itemImg.item)
+.where(
+    cartItem.item.id.eq(itemImg.item.id),
+    cartItem.cart.id.eq(cartId),
+    itemImg.repImgYn.eq("Y")
+)
+```
+- 시도 1: ItemImg를 바로 join해주니 cross Join 발생
+```java
+.from(cartItem)
+.join(itemImg)
+.where(
+    cartItem.item.id.eq(itemImg.item.id),
+    cartItem.cart.id.eq(cartId),
+    itemImg.repImgYn.eq("Y")
+)
+```
+```sql
+select
+    cartitem0_.cart_item_id as col_0_0_,
+    item2_.item_name as col_1_0_,
+    item2_.price as col_2_0_,
+    cartitem0_.count as col_3_0_,
+    itemimg1_.img_url as col_4_0_ 
+from
+    cart_item cartitem0_ 
+inner join
+    item_img itemimg1_ 
+        on cross 
+join
+    item item2_ 
+where
+    itemimg1_.item_id=item2_.item_id 
+    and cartitem0_.cart_item_id=? 
+    and cartitem0_.item_id=itemimg1_.item_id 
+    and itemimg1_.rep_img_yn=? 
+order by
+    cartitem0_.created_at desc
+```
+- 시도2: 조인조건 추가했으나 여전히 cross Join 발생
+```java
+.from(cartItem)
+.join(itemImg)
+.on(cartItem.item.id.eq(itemImg.item.id))
+.where(
+    cartItem.id.eq(cartId),
+    itemImg.repImgYn.eq("Y") 
+)
+```
+- 해결: 원래 중심에 있던 Item을 기준으로 join을 해줌
+```java
+.select(
+    new QCartDetailDto(
+            cartItem.id, item.itemName,
+            item.price, cartItem.count,
+            itemImg.imgUrl
+    )
+)
+.from(item)
+.join(cartItem).fetchJoin().on(item.id.eq(cartItem.item.id))
+.join(itemImg).fetchJoin().on(item.id.eq(itemImg.item.id))
+.where(
+    cartItem.item.id.eq(itemImg.item.id),
+    cartItem.cart.id.eq(cartId),
+    itemImg.repImgYn.eq("Y")
+)
+.orderBy(cartItem.createdAt.desc())
+.fetch();
+```
+```sql
+select
+    cartitem1_.cart_item_id as col_0_0_,
+    item0_.item_name as col_1_0_,
+    item0_.price as col_2_0_,
+    cartitem1_.count as col_3_0_,
+    itemimg2_.img_url as col_4_0_ 
+from
+    item item0_ 
+inner join
+    cart_item cartitem1_ 
+        on (
+            item0_.item_id=cartitem1_.item_id
+        ) 
+inner join
+    item_img itemimg2_ 
+        on (
+            item0_.item_id=itemimg2_.item_id
+        ) 
+where
+    cartitem1_.item_id=itemimg2_.item_id 
+    and cartitem1_.cart_id=? 
+    and itemimg2_.rep_img_yn=? 
+order by
+    cartitem1_.created_at desc
+```
+#### 📑 JQuery 화살표 함수
+- jquery 문법 사용 시 화살표 함수를 사용하면 `this`를 못씀
+- [참고블로그](https://triplexblog.kr/9)
+- function() 의 this : 자기자신
+- () => {} 의 this : 전역변수
+```javascript
+//기존 : ambiguous
+$("input[name=cartChkBox]:checked").each(() => {
+    const cartItemId = $(this).val();
+    ...
+})
+//수정
+$("input[name=cartChkBox]:checked").each(function () {
+  const cartItemId = $(this).val();
+...
+})
+```
