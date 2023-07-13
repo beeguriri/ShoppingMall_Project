@@ -11,7 +11,9 @@ import study.shop.dto.ItemSearchDto;
 import study.shop.dto.MainItemDto;
 import study.shop.dto.ManageItemDto;
 import study.shop.entity.Item;
+import study.shop.entity.ItemComment;
 import study.shop.entity.ItemImg;
+import study.shop.repository.ItemCommentRepository;
 import study.shop.repository.ItemImgRepository;
 import study.shop.repository.ItemRepository;
 
@@ -26,6 +28,7 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final ItemImgService itemImgService;
     private final ItemImgRepository itemImgRepository;
+    private final ItemCommentRepository itemCommentRepository;
 
     public Long saveItem(ItemFormDto itemFormDto, List<MultipartFile> multipartFileList) throws Exception {
 
@@ -50,10 +53,15 @@ public class ItemService {
     public ItemFormDto getItemDetail(Long itemId) {
 
         List<ItemImg> itemImgList = itemImgRepository.findByItemIdOrderByIdAsc(itemId);
+        List<ItemComment> itemCommentList = itemCommentRepository.findByItemIdOrderByUpdatedAtDesc(itemId);
+
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(EntityNotFoundException::new);
+
         ItemFormDto itemFormDto = ItemFormDto.of(item);
+
         itemFormDto.setItemImgsList(itemImgList);
+        itemFormDto.setItemCommentList(itemCommentList);
 
         return itemFormDto;
     }

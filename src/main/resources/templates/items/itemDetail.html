@@ -182,7 +182,43 @@
             <p class="lead" th:text="${item.itemDetail}"></p>
         </div>
     </div>
-    
+
+    <!-- 상품 댓글 영역 -->
+    <div class="comment">
+        <!-- 댓글 등록 창 -->
+        <form>
+            <textarea placeholder="상품평을 작성 해 주세요"></textarea>
+            <button type="button">등록</button>
+        </form>
+        <!-- 기존 등록된 댓글 보여지는 영역 -->
+        <table class="table">
+            <colgroup>
+                <col style="width: 10%;" />
+                <col style="width: 45%;" />
+                <col style="width: 15%;" />
+                <col style="width: 15%;" />
+                <col style="width: 15%;" />
+            </colgroup>
+            <thead>
+            <tr class="text-center">
+                <td>번호</td>
+                <td>상품평</td>
+                <td>등록자</td>
+                <td>등록일</td>
+                <td>수정일</td>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="itemComment, status: ${item.getItemCommentList()}" class="text-center">
+                <td th:text="${status.count}">
+                <td th:text="${itemComment.comment}"></td>
+                <td th:text="${itemComment.createdBy}"></td>
+                <td th:text="${#temporals.format(itemComment.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td th:text="${#temporals.format(itemComment.updatedAt, 'yyyy-MM-dd HH:mm')}"></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
     <!-- 상품 이미지 영역 -->
     <div th:each="itemImg : ${item.getItemImgsList()}" class="text-center">
         <img th:if="${not #strings.isEmpty(itemImg.imgUrl)}"

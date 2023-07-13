@@ -3,6 +3,7 @@ package study.shop.dto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import study.shop.entity.Item;
+import study.shop.entity.ItemComment;
 import study.shop.entity.ItemImg;
 import study.shop.entity.constant.ItemSellStatus;
 
@@ -36,6 +37,9 @@ public class ItemFormDto {
 
     // 상품의 이미지 아이디 저장
     private List<Long> itemImgIds = new ArrayList<>();
+
+    // 상품에 연관된 댓글
+    private List<ItemComment> itemCommentList = new ArrayList<>();
 
     // 생성자
     public ItemFormDto(Long id, String itemName, int price, int stock,
