@@ -35,17 +35,21 @@
   - Dto 객체에 QueryDsl 사용 시 반드시 `@QueryProjection` 추가해주기
 - ✅ 7/12 카트에 상품추가, 수정, 삭제, 카트 목록 보기, 카트에 있는 상품 주문하기
   - QueryDsl로 Join 하기  
-- 7/13 init 데이터 넣고 테스트 하기, csrf 해결하기
+- ✅ 7/13 csrf 해결, ManageItemDto 만들고 쿼리 수정, ItemComment 생성 
+- 7/14 상품정보에 상품평(댓글 추가)
+  - ItemController post메서드 추가, html 수정 필요
 - 나중에 보완 할 것
-  - [ ] csrf 공부하기
+  - [x] ~~csrf 공부하기: 적용완료~~
   - [ ] url을 주소창에 입력해서 강제접근 시(principal==null) login 화면으로 redirect 하기
   - [ ] 시큐리티가 적용되어 있어서 테스트 코드 짜는게 너무 힘들다...
   - [ ] 첨부파일을 추가하거나 수정은 되는데, 기존에 첨부되어있는 파일 수를 줄일수가 없음.
-  - [ ] 상품관리 `Page<Item>` 에서 Item Entity 그대로 내보내고 있음..
+  - [x] ~~상품관리 `Page<Item>` 에서 Item Entity 그대로 내보내고 있음:완료~~
   - [x] ~~이미지파일 엑박 : 해결~~
   - [ ] 상품 상세정보 아래에 상품평 남기기
   - [ ] 원래 쇼핑몰 서비스는 할인정책 등으로 인하여 orderPrice와 itemPrice가 다르다고 했음
-    - 현재는 orderPrice에 item 가격 넣어놈.. (cart에서 주문 시 orderprice가 안넘어가는 문제가 있어서..) 
+    - 현재는 orderPrice에 item 가격 넣어놈.. (cart에서 주문 시 orderprice가 안넘어가는 문제가 있어서..)
+  - [ ] 구매이력 확인 시 개별 상품에 대한 총 합계만 나옴. 한 주문에 대한 전체 상품 합계 추가 -> jquery
+  - [ ] init 데이터 다시 넣고 테스트 하기, css 손보기
 
 ## 엔티티 설계
 ```mermaid
@@ -100,6 +104,7 @@ erDiagram
     updated_by varchar(255)
   }
   Item ||--o{ ItemImg : l
+  Item ||--o{ ItemComment : l
   ItemImg{
     item_img_id bigint PK ""
     item_id bigint FK
@@ -107,6 +112,15 @@ erDiagram
     img_url varchar(255)
     ori_img_name varchar(255)
     rep_img_yn varchar(255)
+    created_at timestamp "not null"
+    updated_at timestamp "not null"
+    created_by varchar(255)
+    updated_by varchar(255)
+  }
+  ItemComment{
+    item_comment_id bigint PK ""
+    item_id bigint FK
+    comment varchar(255)
     created_at timestamp "not null"
     updated_at timestamp "not null"
     created_by varchar(255)
@@ -155,7 +169,7 @@ erDiagram
   - 필드에러 시 BindingResult 로 처리
   - 아이디, 이메일 중복 시 `alert` 처리
 - `Item`
-  - `Item`은 여러개의 `ItemImg` 가짐. 단방향 연관관계 설정
+  - `Item`은 여러개의 `ItemImg`,`ItemComment` 가짐. 단방향 연관관계 설정
   - `ItemImg`는 원래 파일이름, 고유 파일이름, 저장위치정보를 가짐.
 - `Order`
   - `Order`로 엔티티 생성 시 table 생성 불가 (DDL Error) => 테이블명 별도 지정
@@ -467,3 +481,43 @@ $("input[name=cartChkBox]:checked").each(function () {
 ...
 })
 ```
+#### 📑 csrf 설정
+- 기존: 스프링시큐리티는 디폴트가 `csrf enable`
+- 문제: form 전송 시 csrf 토큰값 담아서 보내도록 하였으나 401에러 발생 
+```html
+<form>
+...
+  <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+</form>
+```
+- form 화면에 접근 시 스프링부트에서 띄우는 에러
+```
+2023-07-13 15:34:05.248 ERROR 18792 --- [nio-8080-exec-6] org.thymeleaf.TemplateEngine             : 
+[THYMELEAF][http-nio-8080-exec-6] Exception processing template "members/memberForm": 
+Exception evaluating SpringEL expression: "_csrf.token" (template: "members/memberForm" - line 73, col 63)
+
+org.thymeleaf.exceptions.TemplateProcessingException: 
+Exception evaluating SpringEL expression: "_csrf.token" 
+(template: "members/memberForm" - line 73, col 63)
+Caused by: org.springframework.expression.spel.SpelEvaluationException: 
+EL1021E: A problem occurred whilst attempting to access the property 'token': 
+'Unable to access property 'token' through getter method'
+...
+```
+- 해결 : csrf 관련 설정 추가 
+```java
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf()
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+    ...
+    }
+  ...
+}
+```
+- Response Headers에 Set-Cookie: XSRF-TOKEN="..."; Path=/ 생성 확인
+- 이후 요청 보낼때는 RequestHeader Cookie에 token 담아 보냄
+- form 태그 내부의 inputbox에도 token값 할당된 것 확인
+- 참고 : [참고블로그1](https://cheese10yun.github.io/spring-csrf/) & [참고블로그2](https://zzang9ha.tistory.com/341)

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import study.shop.dto.ItemFormDto;
 import study.shop.dto.ItemSearchDto;
-import study.shop.entity.Item;
+import study.shop.dto.ManageItemDto;
 import study.shop.service.ItemService;
 
 import javax.persistence.EntityNotFoundException;
@@ -98,7 +98,7 @@ public class ItemController {
                                 @PathVariable("page") Optional<Integer> page, Model model) {
 
         Pageable pageable = PageRequest.of(page.orElse(0),3);
-        Page<Item> items = itemService.getAdminItemPage(itemSearchDto, pageable);
+        Page<ManageItemDto> items = itemService.getAdminItemPage(itemSearchDto, pageable);
 
         model.addAttribute("items", items);
         model.addAttribute("itemSearchDto", itemSearchDto); //페이지 전환 시 기존 검색조건 유지

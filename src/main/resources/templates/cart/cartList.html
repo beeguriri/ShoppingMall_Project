@@ -2,12 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout1}">
-<!--
 <head>
     <meta name="_csrf" th:content="${_csrf.token}">
     <meta name="_csrf_header" th:content="${_csrf.headerName}">
 </head>
--->
 
 <!-- 사용자 CSS -->
 <th:block layout:fragment="css">
@@ -60,17 +58,17 @@
 
         const updateCartItemCount = (cartItemId, count) => {
 
-            // const token = $("meta[name='_csrf']").attr("content");
-            // const header = $("meta[name='_csrf_header']").attr("content");
+            const token = $("meta[name='_csrf']").attr("content");
+            const header = $("meta[name='_csrf_header']").attr("content");
 
             const url = "/cartItem/" + cartItemId + "?count=" + count;
 
             $.ajax({
                 url: url,
                 type: "PATCH",
-                // beforeSend: (xhr) => {
-                //     xhr.setRequestHeader(header, token);
-                // },
+                beforeSend: (xhr) => {
+                    xhr.setRequestHeader(header, token);
+                },
                 dataType: "json",
                 cache: false,
                 success: (result, status) => {
@@ -101,8 +99,8 @@
 
         const deleteCartItem = (obj) => {
 
-            // const token = $("meta[name='_csrf']").attr("content");
-            // const header = $("meta[name='_csrf_header']").attr("content");
+            const token = $("meta[name='_csrf']").attr("content");
+            const header = $("meta[name='_csrf_header']").attr("content");
 
             const cartItemId = obj.dataset.id;
             const url = "/cartItem/" + cartItemId;
@@ -110,9 +108,9 @@
             $.ajax({
                 url: url,
                 type: "DELETE",
-                // beforeSend: (xhr) => {
-                //     xhr.setRequestHeader(header, token);
-                // },
+                beforeSend: (xhr) => {
+                    xhr.setRequestHeader(header, token);
+                },
                 dataType: "json",
                 cache: false,
                 success: (result, status) => {
@@ -132,8 +130,8 @@
 
         const orderCartItem = () => {
 
-            // const token = $("meta[name='_csrf']").attr("content");
-            // const header = $("meta[name='_csrf_header']").attr("content");
+            const token = $("meta[name='_csrf']").attr("content");
+            const header = $("meta[name='_csrf_header']").attr("content");
 
             const url = "/cart/orders";
             const dataList = [];
@@ -155,9 +153,9 @@
                 type: "POST",
                 contentType: "application/json",
                 data: param,
-                // beforeSend: (xhr) => {
-                //     xhr.setRequestHeader(header, token);
-                // },
+                beforeSend: (xhr) => {
+                    xhr.setRequestHeader(header, token);
+                },
                 dataType: "json",
                 cache: false,
                 success: (result, status) => {
@@ -251,31 +249,5 @@
     <div class="text-center mt-3">
         <button type="button" onclick="orderCartItem()" class="btn btn-primary btn-lg">주문하기</button>
     </div>
-
-    <!-- 페이징
-    <div th:with="start=${(orders.number/maxPage)*maxPage + 1},
-                        end=(${(orders.totalPages == 0) ? 1 :
-                            (start + (maxPage - 1) < orders.totalPages ? start + (maxPage - 1) : orders.totalPages)})">
-        <ul class="pagination justify-content-center">
-            <li class="page-item" th:classappend="${orders.number eq 0}?'disabled':''">
-                <a th:href="@{'/orders/'+${orders.number - 1}}"
-                   aria-label="Previous" class="page-link">
-                    <span aria-hidden="true">Previous</span>
-                </a>
-            </li>
-            <li class="page-item" th:each="page: ${#numbers.sequence(start, end)}"
-                th:classappend="${orders.number eq (page - 1)} ? 'active' : ''">
-                <a th:href="@{'/orders/'+${page - 1}}"
-                   th:inline="text" class="page-link">[[${page}]]</a>
-            </li>
-            <li class="page-item" th:classappend="${orders.number + 1 ge orders.totalPages}?'disabled':''">
-                <a th:href="@{'/orders/'+${orders.number + 1}}"
-                   aria-label="Next" class="page-link">
-                    <span aria-hidden="true">Next</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-    -->
 </div>
 </html>
