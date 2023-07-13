@@ -9,19 +9,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.thymeleaf.util.StringUtils;
-import study.shop.dto.ItemSearchDto;
-import study.shop.dto.MainItemDto;
-import study.shop.dto.QMainItemDto;
-import study.shop.entity.Item;
+import study.shop.dto.*;
 import study.shop.entity.constant.ItemSellStatus;
 
 import javax.persistence.EntityManager;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
 import static study.shop.entity.QItem.item;
-import static study.shop.entity.QItemImg.*;
+import static study.shop.entity.QItemImg.itemImg;
 
 @RequiredArgsConstructor
 public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
@@ -34,10 +30,19 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
     }
 
     @Override
-    public Page<Item> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable) {
+    public Page<ManageItemDto> getAdminItemPage(ItemSearchDto itemSearchDto, Pageable pageable) {
 
-        List<Item> content = queryFactory
-                .selectFrom(item)
+        List<ManageItemDto> content = queryFactory
+                .select(
+                        new QManageItemDto(
+                                item.id,
+                                item.itemName,
+                                item.itemSellStatus,
+                                item.createdBy,
+                                item.createdAt
+                        )
+                )
+                .from(item)
                 .where(
                         regDtsAfter(itemSearchDto.getSearchDateType()),
                         searchSellStatusEq(itemSearchDto.getSearchSellStatus()),
