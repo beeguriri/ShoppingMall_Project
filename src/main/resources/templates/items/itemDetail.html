@@ -2,7 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layouts/layout1}">
-
+<head>
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+</head>
 <!-- 사용자 CSS -->
 <th:block layout:fragment="css">
     <style>
@@ -53,8 +56,8 @@
 
         const order = () => {
 
-            // const token = $("meta[name='_csrf']").attr("content");
-            // const header = $("meta[name='_csrf_header']").attr("content");
+            const token = $("meta[name='_csrf']").attr("content");
+            const header = $("meta[name='_csrf_header']").attr("content");
 
             const url = "/order";
             const paramData = {
@@ -69,9 +72,9 @@
                 type: "POST",
                 contentType: "application/json",
                 data: param,
-                // beforeSend: (xhr) => {
-                //     xhr.setRequestHeader(header, token);
-                // },
+                beforeSend: (xhr) => {
+                    xhr.setRequestHeader(header, token);
+                },
                 dataType: "json",
                 cache: false,
                 success: (result, status) => {
@@ -90,8 +93,8 @@
 
         const addCart = () => {
 
-            // const token = $("meta[name='_csrf']").attr("content");
-            // const header = $("meta[name='_csrf_header']").attr("content");
+            const token = $("meta[name='_csrf']").attr("content");
+            const header = $("meta[name='_csrf_header']").attr("content");
 
             const url = "/cart";
             const paramData = {
@@ -105,9 +108,9 @@
                 type: "POST",
                 contentType: "application/json",
                 data: param,
-                // beforeSend: (xhr) => {
-                //     xhr.setRequestHeader(header, token);
-                // },
+                beforeSend: (xhr) => {
+                    xhr.setRequestHeader(header, token);
+                },
                 dataType: "json",
                 cache: false,
                 success: (result, status) => {
